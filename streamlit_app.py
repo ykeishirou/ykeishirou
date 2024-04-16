@@ -1,5 +1,5 @@
 # Streamlitライブラリをインポート
-pip install streamlit pygame
+import streamlit as st
 
 import streamlit as st
 import pygame
