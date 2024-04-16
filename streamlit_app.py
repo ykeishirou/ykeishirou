@@ -1,7 +1,5 @@
 # Streamlitライブラリをインポート
 import streamlit as st
-
-import streamlit as st
 import emoji
 
 def main():
