@@ -16,7 +16,8 @@ def main():
         slot_result = spin_slots()
 
         # スロット結果を横に並べて表示
-        st.write(" ".join(slot_result), unsafe_allow_html=True)
+        slot_symbols = " ".join([f"<span style='font-size: 50px;'>{symbol}</span>" for symbol in slot_result])
+        st.write(slot_symbols, unsafe_allow_html=True)
 
         # スロット結果が全て同じシンボルかどうかを確認
         if len(set(slot_result)) == 1:
