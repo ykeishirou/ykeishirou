@@ -1,31 +1,88 @@
 # Streamlitライブラリをインポート
+pip install streamlit pygame
+
 import streamlit as st
+import pygame
+import random
 
-# ページ設定（タブに表示されるタイトル、表示幅）
-st.set_page_config(page_title="タイトル", layout="wide")
+# ゲームのパラメータ
+WIDTH, HEIGHT = 600, 400
+PADDLE_WIDTH, PADDLE_HEIGHT = 80, 20
+BALL_RADIUS = 10
+PADDLE_SPEED = 5
+BALL_SPEED = 5
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 
-# タイトルを設定
-st.title('Streamlitのサンプルアプリ')
+# 初期化
+pygame.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Air Hockey")
+clock = pygame.time.Clock()
 
-# テキスト入力ボックスを作成し、ユーザーからの入力を受け取る
-user_input = st.text_input('あなたの名前を入力してください')
+# パドルのクラス
+class Paddle:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
-# ボタンを作成し、クリックされたらメッセージを表示
-if st.button('挨拶する'):
-    if user_input:  # 名前が入力されているかチェック
-        st.success(f'🌟 こんにちは、{user_input}さん! 🌟')  # メッセージをハイライト
-    else:
-        st.error('名前を入力してください。')  # エラーメッセージを表示
+    def draw(self):
+        pygame.draw.rect(screen, WHITE, (self.x, self.y, PADDLE_WIDTH, PADDLE_HEIGHT))
 
-# スライダーを作成し、値を選択
-number = st.slider('好きな数字（10進数）を選んでください', 0, 100)
+# ボールのクラス
+class Ball:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.dx = BALL_SPEED * random.choice([-1, 1])
+        self.dy = BALL_SPEED * random.choice([-1, 1])
 
-# 補足メッセージ
-st.caption("十字キー（左右）でも調整できます。")
+    def draw(self):
+        pygame.draw.circle(screen, WHITE, (self.x, self.y), BALL_RADIUS)
 
-# 選択した数字を表示
-st.write(f'あなたが選んだ数字は「{number}」です。')
+    def update(self):
+        self.x += self.dx
+        self.y += self.dy
 
-# 選択した数値を2進数に変換
-binary_representation = bin(number)[2:]  # 'bin'関数で2進数に変換し、先頭の'0b'を取り除く
-st.info(f'🔢 10進数の「{number}」を2進数で表現すると「{binary_representation}」になります。 🔢')  # 2進数の表示をハイライト
+# ゲームのメイン関数
+def main():
+    paddle = Paddle(WIDTH // 2 - PADDLE_WIDTH // 2, HEIGHT - 2 * PADDLE_HEIGHT)
+    ball = Ball(WIDTH // 2, HEIGHT // 2)
+
+    while True:
+        screen.fill(BLACK)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            paddle.x -= PADDLE_SPEED
+        if keys[pygame.K_RIGHT]:
+            paddle.x += PADDLE_SPEED
+
+        paddle.draw()
+        ball.draw()
+        ball.update()
+
+        if ball.x - BALL_RADIUS <= 0 or ball.x + BALL_RADIUS >= WIDTH:
+            ball.dx *= -1
+        if ball.y - BALL_RADIUS <= 0 or ball.y + BALL_RADIUS >= HEIGHT:
+            ball.dy *= -1
+        if ball.y + BALL_RADIUS >= HEIGHT - PADDLE_HEIGHT and \
+           paddle.x < ball.x < paddle.x + PADDLE_WIDTH:
+            ball.dy *= -1
+
+        pygame.display.flip()
+        clock.tick(60)
+
+# Streamlitアプリケーションの作成
+def run():
+    st.title("エアホッケーゲーム")
+    st.write("キーボードの左右矢印キーでパドルを操作してください。")
+
+    main()
+
+if __name__ == "__main__":
+    run()
