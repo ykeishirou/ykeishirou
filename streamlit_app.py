@@ -19,8 +19,9 @@ def main():
         slot_symbols = " ".join([f"<span style='font-size: 50px;'>{symbol}</span>" for symbol in slot_result])
         st.write(slot_symbols, unsafe_allow_html=True)
 
-        # スロット結果が全て同じシンボルかどうかを確認
-        if len(set(slot_result)) == 1:
+        # ジャックポットが発生する確率を20分の1に設定
+        jackpot_probability = 20
+        if all(symbol == slot_result[0] for symbol in slot_result) and random.randint(1, jackpot_probability) == 1:
             st.success("おめでとうございます！ジャックポットです！")
         elif len(set(slot_result)) == 2:
             st.warning("2つ揃いました！")
